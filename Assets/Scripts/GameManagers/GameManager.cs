@@ -1,9 +1,22 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
+using UnityEngine.UI;
+using Unity.VisualScripting;
 
 public class GameManager : MonoBehaviour
 {
+    public HighScores m_HighScores;
+    public TextMeshProUGUI m_MessageText;
+    public TextMeshProUGUI m_TimerText;
+
+    public GameObject m_HighScorePanel;
+    public TextMeshProUGUI m_HighScoresText;
+
+    public Button m_NewGameButton;
+    public Button m_HighScoresButton;
+
     public GameObject[] m_swimmers;
     public GameObject m_passenger;
 
@@ -25,11 +38,14 @@ public class GameManager : MonoBehaviour
     {
         m_GameState = GameState.GameOver;
 
+        m_TimerText.text = "";
+        m_MessageText.text = "Press Enter to Start A Chads Life";
+
         m_passenger.SetActive(false);
 
         for (int i = 0; i < m_swimmers.Length; i++)
         {
-            m_swimmers[i].SetActive(false);
+            m_swimmers[i].SetActive(true);
         }
     }
 
@@ -57,8 +73,11 @@ public class GameManager : MonoBehaviour
     {
         m_startTimer -= Time.deltaTime;
 
+        m_MessageText.text = "Get Ready " + (int)(m_startTimer + 1);
+
         if (m_startTimer < 0)
         {
+            m_MessageText.text = "";
             m_gameTime = 0;
             m_startTimer = 3;
             m_GameState = GameState.Playing;
@@ -77,10 +96,20 @@ public class GameManager : MonoBehaviour
         if (AllRescued() == true)
         {
             m_GameState = GameState.GameOver;
+            m_MessageText.text = "Winner";
+            m_HighScores.AddScore(Mathf.RoundToInt(m_gameTime));
+            m_HighScores.SaveScoresToFile();
+
+            m_NewGameButton.gameObject.SetActive(true);
+            m_HighScoresButton.gameObject.SetActive(true);
         }
         else
         {
             m_gameTime += Time.deltaTime;
+            int seconds = Mathf.RoundToInt(m_gameTime);
+
+            m_TimerText.text = string.Format("{0:D2}:{1:D2}",
+                (seconds / 60), (seconds % 60));
         }
     }
 
@@ -89,6 +118,9 @@ public class GameManager : MonoBehaviour
         if (Input.GetKeyUp(KeyCode.Return) == true) 
         {
             m_GameState = GameState.Start;
+            m_HighScorePanel.gameObject.SetActive(false);
+            m_NewGameButton.gameObject.SetActive(false);
+            m_HighScoresButton.gameObject.SetActive(false);
         }
     }
 
@@ -106,5 +138,30 @@ public class GameManager : MonoBehaviour
         if (numRescuedLeft <= 0 && m_passenger.activeSelf == false)
             return true;
         return false;
+    }
+
+    public void OnNewGame()
+    {
+        m_GameState = GameState.Start;
+        m_HighScorePanel.gameObject.SetActive(false);
+        m_NewGameButton.gameObject.SetActive(false);
+        m_HighScoresButton.gameObject.SetActive(false);
+    }
+
+    public void OnHighScores()
+    {
+        m_MessageText.text = "";
+
+        m_HighScoresButton.gameObject.SetActive(false);
+        m_HighScorePanel.SetActive(true);
+
+        string text = "";
+        for (int i = 0; i < m_HighScores.scores.Length; i++)
+        {
+            int seconds = m_HighScores.scores[i];
+            text += string.Format("{0:D2}:{1:D2}\n",
+                             (seconds / 60), (seconds % 60));
+        }
+        m_HighScoresText.text = text;
     }
 }

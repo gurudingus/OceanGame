@@ -12,6 +12,8 @@ public class BoatMovement : MonoBehaviour
     private float m_ForwardInputValue; //current movement input value
     private float m_TurnInputValue; //current turn input value
 
+    public GameManager m_GameManager;
+
     private void Awake()
     {
         m_Rigidbody = GetComponent<Rigidbody>();
@@ -35,8 +37,11 @@ public class BoatMovement : MonoBehaviour
 
     private void Update()
     {
-        m_ForwardInputValue = Input.GetAxisRaw("Vertical");
-        m_TurnInputValue = Input.GetAxisRaw("Horizontal");
+        if (m_GameManager.State == GameManager.GameState.Playing)
+        {
+            m_ForwardInputValue = Input.GetAxisRaw("Vertical");
+            m_TurnInputValue = Input.GetAxisRaw("Horizontal");
+        }
     }
 
     private void FixedUpdate()
