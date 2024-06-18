@@ -4,73 +4,58 @@ using UnityEngine;
 
 public class BoatMovement : MonoBehaviour
 {
-    public float m_Speed = 12f; //boat movement speed 
-    public float m_RotationSpeed = 180f; //turn speed
+    public float m_Speed = 12f; // Movement speed
+    public float m_RotationSpeed = 180f; // Turning speed
 
     private Rigidbody m_Rigidbody;
 
-    private float m_ForwardInputValue; //current movement input value
-    private float m_TurnInputValue; //current turn input value
+    private float m_ForwardInputValue; // Movement input
+    private float m_TurnInputValue; // Turn input
 
     public GameManager m_GameManager;
 
     private void Awake()
     {
-        m_Rigidbody = GetComponent<Rigidbody>();
+        m_Rigidbody = GetComponent<Rigidbody>(); // Get Rigidbody component
     }
 
     private void OnEnable()
     {
-        //when the Boat is on make sure it is Not kinematic
-        m_Rigidbody.isKinematic = false;
-
-        //resets input value
-        m_ForwardInputValue = 0;
-        m_TurnInputValue = 0; 
+        m_Rigidbody.isKinematic = false; // Set kinematic to false on enable
+        m_ForwardInputValue = 0; // Reset forward input
+        m_TurnInputValue = 0; // Reset turn input
     }
 
     private void OnDisable()
     {
-        //when the Boat is turned off make kinematic
-        m_Rigidbody.isKinematic = true;
+        m_Rigidbody.isKinematic = true; // Set kinematic to true on disable
     }
 
     private void Update()
     {
         if (m_GameManager.State == GameManager.GameState.Playing)
         {
-            m_ForwardInputValue = Input.GetAxisRaw("Vertical");
-            m_TurnInputValue = Input.GetAxisRaw("Horizontal");
+            m_ForwardInputValue = Input.GetAxisRaw("Vertical"); // Get vertical input
+            m_TurnInputValue = Input.GetAxisRaw("Horizontal"); // Get horizontal input
         }
     }
 
     private void FixedUpdate()
     {
-        Move();
-        Turn();
+        Move(); // Process movement
+        Turn(); // Process turning
     }
 
     private void Move()
     {
-        //create a vector in the direction the boat is facing with a magnitude
-        //based on the input speed and time between frames
-        Vector3 wantedVelocity = transform.forward * m_ForwardInputValue * m_Speed;
-
-        //apply the wantedVelocity minus the current rigidbody velocity to apply a change in the volcity on the boat
-        //this ignores the mass of the boat
-        m_Rigidbody.AddForce(wantedVelocity - m_Rigidbody.velocity, ForceMode.VelocityChange);
+        Vector3 wantedVelocity = transform.forward * m_ForwardInputValue * m_Speed; // Calculate desired velocity
+        m_Rigidbody.AddForce(wantedVelocity - m_Rigidbody.velocity, ForceMode.VelocityChange); // Apply force for movement
     }
 
     private void Turn()
     {
-        //detering the number of degrees to be turned based on the input
-        //speed and time between frames
-        float turnValue = m_TurnInputValue * m_RotationSpeed * Time.deltaTime;
-
-        //make this into a rotation around the y axis
-        Quaternion turnRotation = Quaternion.Euler(0f, turnValue, 0f);
-
-        //apply this rotation to the rigidbodys rotation
-        m_Rigidbody.MoveRotation(transform.rotation * turnRotation);
+        float turnValue = m_TurnInputValue * m_RotationSpeed * Time.deltaTime; // Calculate turn value
+        Quaternion turnRotation = Quaternion.Euler(0f, turnValue, 0f); // Create rotation
+        m_Rigidbody.MoveRotation(transform.rotation * turnRotation); // Apply rotation
     }
 }
