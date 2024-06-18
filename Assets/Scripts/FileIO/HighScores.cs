@@ -32,33 +32,21 @@ public class HighScores : MonoBehaviour
 
         scores = new int[scores.Length]; // Reset scores array
 
-        StreamReader fileReader = new StreamReader(currentDirectory + "\\" + scoreFileName); // Create a stream reader for the file
-        int scoreCount = 0; // Counter for loaded scores
+        BinaryReader fileReader = new BinaryReader(File.Open(currentDirectory + "\\" + scoreFileName, FileMode.Open)); // Create a stream reader for the file
 
-        while (fileReader.Peek() != 0 && scoreCount < scores.Length) // Read scores from file
+        for (int scoreCount = 0; scoreCount < scores.Length; scoreCount++) // Read scores from file
         {
-            string fileLine = fileReader.ReadLine(); // Read a line from the file
-            int readScore;
-            if (int.TryParse(fileLine, out readScore)) // Try parsing score
-            {
-                scores[scoreCount] = readScore; // Store valid score
-            }
-            else
-            {
-                Debug.Log("Invalid line in scores file at " + scoreCount + ", using default value.", this); // Log parsing error
-                scores[scoreCount] = 0; // Use default score on parse fail
-            }
-            scoreCount++;
+            scores[scoreCount] = fileReader.ReadInt32();
         }
         fileReader.Close(); // Close file reader
     }
 
     public void SaveScoresToFile()
     {
-        StreamWriter fileWriter = new StreamWriter(currentDirectory + "\\" + scoreFileName); // Create a stream writer for the file
+        BinaryWriter fileWriter = new BinaryWriter(File.Open(currentDirectory + "\\" + scoreFileName, FileMode.Create)); // Create a stream writer for the file
         for (int i = 0; i < scores.Length; i++) // Write all scores to the file
         {
-            fileWriter.WriteLine(scores[i]); // Write score
+            fileWriter.Write(scores[i]); // Write score
         }
         fileWriter.Close(); // Close file writer
     }
