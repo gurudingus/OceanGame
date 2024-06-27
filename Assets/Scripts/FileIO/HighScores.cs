@@ -56,7 +56,7 @@ public class HighScores : MonoBehaviour
         int desiredIndex = -1; // Desired index for the new score
         for (int i = 0; i < scores.Length; i++) // Determine where to insert new score
         {
-            if (scores[i] < newScore || scores[i] == 0)
+            if (scores[i] > newScore || scores[i] == 0)
             {
                 desiredIndex = i; // Set insertion point
                 break;
